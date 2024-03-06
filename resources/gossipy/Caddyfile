@@ -1,0 +1,38 @@
+{
+	http_port 8080
+
+	auto_https disable_redirects
+
+	storage file_system {
+		root /tmp
+	}
+}
+
+:8080 {
+	header {
+		Content-Type application/json
+
+		# remove server header and other tech leaking headers
+		-server
+		-x-powered-by
+		-x-redirect-by
+	}
+
+	respond /health `{"status": "ok"}` {
+		close
+	}
+
+	handle_path /kv/* {
+		rewrite /kv/ /
+		reverse_proxy http://127.0.0.1:7080
+	}
+
+	handle_path /httpbin/* {
+		rewrite * /{path}
+		reverse_proxy httpbin.org
+	}
+
+	log {
+		format json
+	}
+}
