@@ -46,8 +46,6 @@ On boot each task discovers their peers via the SRV record and attempts to form 
 
 ## Limitations
 
-Far many to list, but the major is that the cluster isn't self healing i.e. a task dying and being replaced with a fresh instance loses all key/value state in that node. In theory this is easily overcome by using `memberlists` remote state merging mechanism but that wasn't the point of the exercise.
-
 I would have also liked the internal solution to be a pure IPV6 stack, but ECS feels very much reliant on IPV4 to support is operations at the moment. The VPC is configured to support IPV6 operations ( including NAT64)
 
 ## Useful commands

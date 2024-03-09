@@ -63,6 +63,7 @@ func (d *NodeEventDelegate) NotifyUpdate(node *memberlist.Node) {
 
 type NodeDelegate struct {
 	msgCh      chan []byte
+	kvStore    *store.KeyValueStore
 	broadcasts *memberlist.TransmitLimitedQueue
 }
 
@@ -80,11 +81,35 @@ func (d *NodeDelegate) NodeMeta(limit int) []byte {
 	return []byte("")
 }
 func (d *NodeDelegate) LocalState(join bool) []byte {
-	// not use, noop
-	return []byte("")
+	// fresh join , no local state
+	if join {
+		return []byte("")
+	}
+	localstate := d.kvStore.Export()
+	log.Debug().Msgf("Localstate %v", localstate)
+	exportData, err := json.Marshal(localstate)
+	if err != nil {
+		// corrupt local state , assume blank
+		log.Error().
+			Err(err).
+			Msg("There was an error encoding local state")
+		return []byte("")
+	}
+
+	return exportData
 }
 func (d *NodeDelegate) MergeRemoteState(buf []byte, join bool) {
-	// not use
+	log.Debug().Str("remote", string(buf)).Msg("MergeRemoteState")
+	var remote map[string]store.Value
+	err := json.Unmarshal(buf, &remote)
+	if err != nil {
+		// corrupt remote state?
+		log.Error().
+			Err(err).
+			Msg("There was an error unmarshalling remote state")
+		return
+	}
+	d.kvStore.MergeIntoStore(remote)
 }
 
 type Cluster struct {
@@ -101,6 +126,7 @@ func NewCluster(localNode *Node, store *store.KeyValueStore, msgChannel chan []b
 
 	d := &NodeDelegate{}
 	d.msgCh = msgChannel
+	d.kvStore = store
 	d.broadcasts = &memberlist.TransmitLimitedQueue{
 		NumNodes: func() int {
 			log.Info().Msgf("broadcast nodes = %d", e.Num)

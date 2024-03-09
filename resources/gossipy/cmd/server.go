@@ -133,14 +133,14 @@ func main() {
 	stopCtx, cancel := context.WithCancel(context.TODO())
 	go wait_signal(cancel)
 
-	tick := time.NewTicker(30 * time.Second)
+	tick := time.NewTicker(300 * time.Second)
 	run := true
 	for run {
 		select {
 		// show our cluster members
 		case <-tick.C:
 			for _, member := range kvcluster.Members() {
-				log.Info().Msgf("Cluster Member: %s %s\n", member.Name, member.Addr)
+				log.Info().Msgf("Cluster Member: %s %s", member.Name, member.Addr)
 			}
 		// received a broadcast message
 		case data := <-msgCh:

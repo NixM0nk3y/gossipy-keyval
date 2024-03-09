@@ -1,5 +1,5 @@
 import { Construct } from "constructs";
-import { CfnOutput, Duration } from "aws-cdk-lib";
+import { CfnOutput, Duration, RemovalPolicy } from "aws-cdk-lib";
 import {
     ContainerImage,
     Cluster,
@@ -71,8 +71,9 @@ export class GossipyKeyVal extends Construct {
         );
 
         const logGroup = new LogGroup(this, "LogGroup", {
-            logGroupName: `/${props.tenant}/${props.product}/${props.environment}/ecs`,
+            logGroupName: `/${props.tenant.toLowerCase()}/${props.product.toLowerCase()}/${props.environment.toLowerCase()}/ecs`,
             retention: RetentionDays.ONE_WEEK,
+            removalPolicy: RemovalPolicy.DESTROY,
         });
 
         const container = taskDefinition.addContainer("Caddy", {
