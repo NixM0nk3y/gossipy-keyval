@@ -24,6 +24,7 @@ func NewAPI(cluster *cluster.Cluster, store *store.KeyValueStore) *API {
 		cluster: cluster,
 		store:   store,
 	}
+
 	api.setupRoutes()
 	return api
 }

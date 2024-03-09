@@ -142,6 +142,7 @@ func NewCluster(localNode *Node, store *store.KeyValueStore, msgChannel chan []b
 	config.AdvertisePort = config.BindPort
 	config.Events = e
 	config.Delegate = d
+	config.LogOutput = newLogParser()
 
 	log.Info().Str("name", config.Name).Str("address", localNode.Addr).Msg("creating cluster")
 

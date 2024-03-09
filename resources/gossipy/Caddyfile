@@ -35,4 +35,5 @@
 	log {
 		format json
 	}
+	skip_log /health
 }
